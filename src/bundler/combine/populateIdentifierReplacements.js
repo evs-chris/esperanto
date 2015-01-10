@@ -14,21 +14,24 @@ export default function populateIdentifierReplacements ( bundle ) {
 	// then figure out what identifiers need to be created
 	// for default exports
 	bundle.modules.forEach( mod => {
-		var prefix, x;
+		var prefix, x, other;
 
 		prefix = bundle.uniqueNames[ mod.id ];
 
 		if ( x = mod.defaultExport ) {
+			if (~mod.id.indexOf('Section/prototype/bubble'))console.log( JSON.stringify( mod.defaultExport ) );
 			if ( x.hasDeclaration && x.name ) {
-				mod.identifierReplacements.default = hasOwnProp.call( conflicts, x.name ) || otherModulesDeclare( mod, prefix ) ?
+				mod.identifierReplacements.default = hasOwnProp.call( conflicts, x.name ) || ( other = otherModulesDeclare( mod, prefix ) ) ?
 					prefix + '__' + x.name :
 					x.name;
 			} else {
-				mod.identifierReplacements.default = hasOwnProp.call( conflicts, prefix ) || otherModulesDeclare( mod, prefix ) ?
+				mod.identifierReplacements.default = hasOwnProp.call( conflicts, prefix ) || ( other = otherModulesDeclare( mod, prefix ) ) ?
 					prefix + '__default' :
 					prefix;
 			}
 		}
+
+		if ( ~mod.id.indexOf('Section/prototype/bubble') ) console.log( 'I chose ' + JSON.stringify(mod.identifierReplacements) + '\nbecause\n' + JSON.stringify((other || { ast: { _topLevelNames: 'well, there was no other module' } }).ast._topLevelNames));
 	});
 
 	// then determine which existing identifiers
@@ -127,8 +130,8 @@ export default function populateIdentifierReplacements ( bundle ) {
 				continue;
 			}
 
-			if ( hasOwnProp.call( otherMod.ast._declared, replacement ) ) {
-				return true;
+			if ( ~otherMod.ast._topLevelNames.indexOf( replacement ) ) {
+				return otherMod;
 			}
 		}
 	}

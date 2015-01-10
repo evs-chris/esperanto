@@ -158,7 +158,7 @@ require( './build' )().then( function ( esperanto ) {
 
 			return esperanto.bundle({
 				base: path.join( '../bundle/input', sourceBundle ),
-				entry: 'main',
+				entry: config.entry || 'main',
 				skip: config.skip,
 				names: config.names,
 				transform: config.transform
